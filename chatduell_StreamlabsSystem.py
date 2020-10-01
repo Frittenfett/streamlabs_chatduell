@@ -8,7 +8,7 @@ import json
 import codecs
 import os
 import time
-import random
+import operator
 
 clr.AddReference("IronPython.Modules.dll")
 
@@ -19,7 +19,7 @@ ScriptName = "Chatduell"
 Website = "https://www.twitch.tv/frittenfettsenpai"
 Description = "Chatduell Quizshow"
 Creator = "frittenfettsenpai"
-Version = "0.0.1"
+Version = "0.1.0"
 
 
 # ---------------------------------------
@@ -36,7 +36,9 @@ def Init():
     except:
         settings = {
             "command": "!chatduellStart",
-            "pickCommand": "!chatduellPick",
+            "gameLength": 60,
+            "languageStartGame": "/me Chatduell gestartet. Deine nächste Nachricht wird gewertet.'",
+            "languageEndGame": "/me Chatduell Runde Ende. Keine Nachrichten werden mehr akzeptiert.'",
         }
     ResetGame()
     return
@@ -46,17 +48,28 @@ def Init():
 #   [Required] Execute Data / Process Messages
 # ---------------------------------------
 def Execute(data):
-    global settings, activeFor
+    global settings, activeFor, userDict, wordDict, counter
 
     if data.IsWhisper():
         user = data.User
-        command = data.GetParam(0).lower()
-        if command == settings["command"]:
-            activeFor = settings['activeFor']
+        if Parent.HasPermission(user, "Caster", "") is True:
+            command = data.GetParam(0).lower()
+            if command == settings["command"]:
+                activeFor = settings['activeFor']
+                Parent.SendTwitchMessage(settings["languageStartGame"])
+                return
+    if data.IsChatMessage() and activeFor > 0:
+        user = data.User
+        if user in userDict:
             return
-        if command == settings["pickCommand"]:
-            choice = int(data.GetParam(1))
-            return
+        userDict[user] = 1
+
+        message = data.Message.lower()
+        if message in wordDict:
+            wordDict[message] = wordDict[message] + 1
+        else:
+            wordDict[message] = 1
+        counter = counter + 1
     return
 
 
@@ -64,7 +77,7 @@ def Execute(data):
 #	[Required] Tick Function
 # ---------------------------------------
 def Tick():
-    global settings, activeFor
+    global settings, activeFor, wordDict
 
     time.sleep(1)
     if activeFor == 0:
@@ -75,12 +88,26 @@ def Tick():
         activeFor = activeFor - 1
     else:
         # Game end
-        message = "Nothing happend AAAA"
-        Parent.SendTwitchMessage(message)
+        Parent.SendTwitchMessage(settings["languageEndGame"])
+
+        #{k: v for k, v in sorted(x.items(), key=lambda item: item[1])}
+        #import collections
+        #sorted_dict = collections.OrderedDict(sorted_x)
+        result = sorted(wordDict.items(), key=operator.itemgetter(1))
+        datafile = os.path.join(os.path.dirname(__file__), "result.json")
+        try:
+            with codecs.open(datafile, encoding="utf-8-sig", mode="w") as f:
+                f.write(json.dumps(result))
+                f.close()
+        except:
+            return
         ResetGame()
     return
 
 
 def ResetGame():
-    global activeFor
+    global activeFor, userDict, wordDict, counter
     activeFor = 0
+    counter = 0
+    userDict = {}
+    wordDict = {}

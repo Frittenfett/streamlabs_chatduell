@@ -7,11 +7,25 @@
     "tooltip": "Start Command",
     "group": "General"
   },
-  "pickCommand": {
-    "type": "textbox",
-    "value": "!chatduellPick",
-    "label": "Pick Command",
-    "tooltip": "Pick Command",
+  "gameLength": {
+    "type": "numberbox",
+    "value": 100,
+    "label": "Game Active for Chat",
+    "tooltip": "In seconds",
     "group": "General"
+  },
+  "languageStartGame": {
+    "type": "textbox",
+    "value": "/me Chatduell gestartet. Deine nächste Nachricht wird gewertet.",
+    "label": "languageStartGame",
+    "tooltip": "languageStartGame",
+    "group": "Language"
+  },
+  "languageEndGame": {
+    "type": "textbox",
+    "value": "/me Chatduell Runde Ende. Keine Nachrichten werden mehr akzeptiert.",
+    "label": "languageEndGame",
+    "tooltip": "languageEndGame",
+    "group": "Language"
   }
 }

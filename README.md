@@ -4,8 +4,7 @@
 
 The available default commands are:
 * !chatduellStart
-* !chatduellPick (0-5)
 
 ### Changelog
 
-* v0.0.1 Start script
+* v0.1.0 Start script
