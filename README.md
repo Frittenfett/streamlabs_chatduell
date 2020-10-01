@@ -1,10 +1,12 @@
 # streamlabs_chatduell
 
-### this scripts will add a minigame to your streamlabs chatbot. Supported languages: german, english
+### this scripts will add a minigame to your streamlabs chatbot.
 
-The available default commands are:
-* !chatduellStart
+The available whisper commands are:
+* !chatduellStart (Caster Only)
+
+But you still have to moderate etc. at your own
 
 ### Changelog
 
-* v0.1.0 Start script
+* v1.0.0 Mayor Release

@@ -7,11 +7,25 @@
     "tooltip": "Start Command",
     "group": "General"
   },
+  "resultPm": {
+    "type": "textbox",
+    "value": "FrittenfettSenpai",
+    "label": "Result Private Message Goes To",
+    "tooltip": "Result Private Message Goes To",
+    "group": "General"
+  },
   "gameLength": {
     "type": "numberbox",
     "value": 100,
     "label": "Game Active for Chat",
     "tooltip": "In seconds",
+    "group": "General"
+  },
+  "acceptLimit": {
+    "type": "numberbox",
+    "value": 5,
+    "label": "Answer pool limit",
+    "tooltip": "How many answers are inside the answer pool?",
     "group": "General"
   },
   "languageStartGame": {

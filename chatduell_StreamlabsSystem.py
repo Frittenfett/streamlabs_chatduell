@@ -19,7 +19,7 @@ ScriptName = "Chatduell"
 Website = "https://www.twitch.tv/frittenfettsenpai"
 Description = "Chatduell Quizshow"
 Creator = "frittenfettsenpai"
-Version = "0.1.0"
+Version = "1.0.0"
 
 
 # ---------------------------------------
@@ -37,6 +37,8 @@ def Init():
         settings = {
             "command": "!chatduellStart",
             "gameLength": 60,
+            "acceptLimit": 5,
+            "resultPm": "FrittenfettSenpai",
             "languageStartGame": "/me Chatduell gestartet. Deine nächste Nachricht wird gewertet.'",
             "languageEndGame": "/me Chatduell Runde Ende. Keine Nachrichten werden mehr akzeptiert.'",
         }
@@ -48,14 +50,14 @@ def Init():
 #   [Required] Execute Data / Process Messages
 # ---------------------------------------
 def Execute(data):
-    global settings, activeFor, userDict, wordDict, counter
+    global settings, activeFor, userDict, wordDict
 
     if data.IsWhisper():
         user = data.User
         if Parent.HasPermission(user, "Caster", "") is True:
-            command = data.GetParam(0).lower()
+            command = data.GetParam(0)
             if command == settings["command"]:
-                activeFor = settings['activeFor']
+                activeFor = int(settings['gameLength'])
                 Parent.SendTwitchMessage(settings["languageStartGame"])
                 return
     if data.IsChatMessage() and activeFor > 0:
@@ -69,7 +71,6 @@ def Execute(data):
             wordDict[message] = wordDict[message] + 1
         else:
             wordDict[message] = 1
-        counter = counter + 1
     return
 
 
@@ -84,30 +85,37 @@ def Tick():
         return
 
     activeFor = activeFor - 1
-    if activeFor > 0:
-        activeFor = activeFor - 1
-    else:
+    if activeFor == 0:
         # Game end
         Parent.SendTwitchMessage(settings["languageEndGame"])
 
-        #{k: v for k, v in sorted(x.items(), key=lambda item: item[1])}
-        #import collections
-        #sorted_dict = collections.OrderedDict(sorted_x)
-        result = sorted(wordDict.items(), key=operator.itemgetter(1))
-        datafile = os.path.join(os.path.dirname(__file__), "result.json")
-        try:
-            with codecs.open(datafile, encoding="utf-8-sig", mode="w") as f:
-                f.write(json.dumps(result))
-                f.close()
-        except:
-            return
+        fullCount = 0
+        sortedDict = sorted(wordDict.items(), key=operator.itemgetter(1))
+        result = []
+        keyCount = 0
+        for key, value in sortedDict:
+            keyCount = keyCount + 1
+            if keyCount > settings["acceptLimit"]:
+                break
+            fullCount = fullCount + int(value)
+
+        for key, value in sortedDict:
+            keyCount = keyCount + 1
+            if keyCount > settings["acceptLimit"]:
+                break
+            result.append({
+                "word": key,
+                "count": int(value),
+                "percent": float(int(value) / fullCount * 100)
+            })
+
+        Parent.SendStreamWhisper(settings["resultPm"], str(result))
         ResetGame()
     return
 
 
 def ResetGame():
-    global activeFor, userDict, wordDict, counter
+    global activeFor, userDict, wordDict
     activeFor = 0
-    counter = 0
     userDict = {}
     wordDict = {}
