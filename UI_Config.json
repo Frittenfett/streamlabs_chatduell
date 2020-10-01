@@ -1,0 +1,17 @@
+{
+  "output_file": "settings.json",
+  "command": {
+    "type": "textbox",
+    "value": "!chatduellStart",
+    "label": "Start Command",
+    "tooltip": "Start Command",
+    "group": "General"
+  },
+  "pickCommand": {
+    "type": "textbox",
+    "value": "!chatduellPick",
+    "label": "Pick Command",
+    "tooltip": "Pick Command",
+    "group": "General"
+  }
+}
