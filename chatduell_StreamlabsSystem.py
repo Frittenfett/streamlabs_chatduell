@@ -19,8 +19,13 @@ ScriptName = "Chatduell"
 Website = "https://www.twitch.tv/frittenfettsenpai"
 Description = "Chatduell Quizshow"
 Creator = "frittenfettsenpai"
-Version = "1.0.0"
+Version = "1.1.0"
 
+BAD_WORDS_LIST = [
+    "kappa", "lul", "pogchamp", "poggers", "kewk", "PJSalt", "TriHard", "GayPride", "monkaS", "<3", "NotLikeThis",
+    "biblethump", "FeelsBadMan", "FeelsGoodMan", "Kreygasm", "SwiftRage", "ResidentSleeper", "Keepo", "DansGame",
+    ":)", ":(", ";-)", ";)", ":D", "D:", ":O"
+]
 
 # ---------------------------------------
 #   [Required] Intialize Data (Only called on Load)
@@ -62,11 +67,14 @@ def Execute(data):
                 return
     if data.IsChatMessage() and activeFor > 0:
         user = data.User
-        if user in userDict:
-            return
+        #if user in userDict:
+        #    return
         userDict[user] = 1
 
         message = data.Message.lower()
+        for word in BAD_WORDS_LIST:
+            message = message.replace(word.lower(), "")
+
         if message in wordDict:
             wordDict[message] = wordDict[message] + 1
         else:
@@ -90,7 +98,8 @@ def Tick():
         Parent.SendTwitchMessage(settings["languageEndGame"])
 
         fullCount = 0
-        sortedDict = sorted(wordDict.items(), key=operator.itemgetter(1))
+        sortedDict = sorted(wordDict.items(), key=operator.itemgetter(1), reverse=True)
+
         result = []
         keyCount = 0
         for key, value in sortedDict:
@@ -99,6 +108,7 @@ def Tick():
                 break
             fullCount = fullCount + int(value)
 
+        keyCount = 0
         for key, value in sortedDict:
             keyCount = keyCount + 1
             if keyCount > settings["acceptLimit"]:
@@ -106,7 +116,7 @@ def Tick():
             result.append({
                 "word": key,
                 "count": int(value),
-                "percent": float(int(value) / fullCount * 100)
+                "percent": int(float(value) / float(fullCount) * 100)
             })
 
         Parent.SendStreamWhisper(settings["resultPm"], str(result))

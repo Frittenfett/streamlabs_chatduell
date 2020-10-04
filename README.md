@@ -9,4 +9,5 @@ But you still have to moderate etc. at your own
 
 ### Changelog
 
+* v1.1.0 Mayor Bugfix and word/emote blacklist
 * v1.0.0 Mayor Release
